@@ -1,37 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 
-import Fab from '@mui/material/Fab';
-import Box from '@mui/material/Box';
-import Tab from '@mui/material/Tab';
-import Alert from '@mui/material/Alert';
-import Button from '@mui/material/Button';
-import Tooltip from '@mui/material/Tooltip';
-import Snackbar from '@mui/material/Snackbar';
-import TextField from  '@mui/material/TextField';
+import {
+  Fab,
+  Box,
+  Tab,
+  Grid,
+  Alert,
+  Button,
+  Tooltip,
+  Snackbar,
+  TextField,
+  Typography
 
-import CheckIcon from '@mui/icons-material/Check';
-import ErrorIcon from '@mui/icons-material/Error';
-import WarningIcon from '@mui/icons-material/Warning';
-import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+} from '@mui/material';
 
-import TabList from '@mui/lab/TabList';
-import TabPanel from '@mui/lab/TabPanel';
-import TabContext from '@mui/lab/TabContext';
+import {
+  Check,
+  Error,
+  Warning,
+  HourglassEmpty
+
+} from '@mui/icons-material';
+
+import {
+  TabList,
+  TabPanel,
+  TabContext
+
+} from '@mui/lab';
 
 import './App.css';
 
 function App() {
   const [socketUrl, setSocketUrl] = useState('ws://localhost:8080');
   const [token, setToken] = useState(localStorage.getItem('token') || null);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(localStorage.getItem('username') || '');
   const [password, setPassword] = useState('');
   const [tab, setTab] = useState('1');
   const [error, setError] = useState(null);
 
   const {
     readyState,
-    getWebSocket,
     sendJsonMessage
 
   } = useWebSocket(socketUrl, {
@@ -56,7 +66,6 @@ function App() {
 
       if ((_data) && (_data.token)) {
         setToken(_data.token);
-        setUsername('');
         setPassword('');
       }
     },
@@ -89,7 +98,7 @@ function App() {
         });
       }
 
-    }, 20000);
+    }, 10000);
 
     return () => clearInterval(ping);
 
@@ -97,13 +106,23 @@ function App() {
 
   React.useEffect(() => {
     if (!token) {
-      localStorage.clear();
+      localStorage.removeItem('token');
       return;
     }
 
     localStorage.setItem('token', token);
 
   }, [token]);
+
+  React.useEffect(() => {
+    if ((!username) || (username === '')) {
+      localStorage.removeItem('username');
+      return;
+    }
+
+    localStorage.setItem('username', username);
+
+  }, [username]);
 
   const handleSignup = (e) => {
     e.preventDefault();
@@ -125,109 +144,163 @@ function App() {
     });
   };
 
+  const handleLogout = () => {
+    setToken(null);
+    setUsername('');
+  };
+
   return (
     <div className='App'>
       <div style={{ position: 'absolute', left: '50%', top: '50%', transform: 'translate(-50%, -50%)' }}>
         {(token) ? (
-          <div>
-            <h3>Token</h3>
-            <pre>{token}</pre>
-            <Tooltip title={(connectionStatus !== 'Open') ? 'Lost Connection to Server' : ''}  arrow>
-              <div>
+          <Grid direction='row' justifyContent='flex-start'>
+            <Typography variant='h2' component='div' gutterBottom>
+              Welcome, {username}!
+            </Typography>
+            
+            <Grid item xs={12}>
+              <Grid item xs={12}>
+                <TextField
+                  id='outlined-multiline-static'
+                  label='Token'
+                  multiline
+                  fullWidth
+                  rows={4}
+                  defaultValue={token} />
+
+              </Grid>
+
+              <Grid item xs={12}>
                 <Button 
                   variant='contained' 
-                  onClick={() => setToken(null)}>
+                  sx={{ marginTop: '1rem' }}
+                  onClick={() => handleLogout()}>
 
-                  Clear Token
+                  Logout
                 </Button>
-              </div>
-            </Tooltip>
-          </div>
+              </Grid>
+            </Grid>
+          </Grid>
         ) : (
-          <TabContext value={tab}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-              <TabList onChange={(event, newValue) => setTab(newValue)} aria-label='lab API tabs example'>
-                <Tab label='Signup' value='1' />
-                <Tab label='Signin' value='2' />
-              </TabList>
-            </Box>
-
-            <TabPanel value='1'>
-              <Box component='form' onSubmit={(e) => handleSignup(e)}>
-                <TextField
-                  required
-                  id='username'
-                  label='Username'
-                  autoComplete='username'
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)} />
-
-                <TextField
-                  required
-                  id='password'
-                  label='Password'
-                  type='password'
-                  autoComplete='current-password'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)} />
-
-                <Tooltip title={(connectionStatus !== 'Open') ? 'Lost Connection to Server' : ''}  arrow>
-                  <div>
-                    <Button 
-                      variant='contained' 
-                      type='submit' 
-                      disabled={connectionStatus !== 'Open'}>
-
-                      Signup
-                    </Button>
-                  </div>
-                </Tooltip>
+          <div>
+            <Typography variant='h1' component='div' gutterBottom>
+              Socket API
+            </Typography>
+            <TabContext value={tab}>
+              <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <TabList centered onChange={(event, newValue) => setTab(newValue)}>
+                  <Tab label='Signin' value='1' />
+                  <Tab label='Signup' value='2' />
+                </TabList>
               </Box>
-            </TabPanel>
 
-            <TabPanel value='2'>
-              <Box component='form' onSubmit={(e) => handleSignin(e)}>
-                <TextField
-                  required
-                  id='username'
-                  label='Username'
-                  autoComplete='username'
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)} />
+              <TabPanel value='1'>
+                <Box component='form' onSubmit={(e) => handleSignin(e)}>
+                  <Grid direction='row' justifyContent='flex-start'>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        id='username'
+                        label='Username'
+                        autoComplete='username'
+                        value={username}
+                        sx={{ marginBottom: '1rem' }}
+                        onChange={(e) => setUsername(e.target.value)} />
 
-                <TextField
-                  required
-                  id='password'
-                  label='Password'
-                  type='password'
-                  autoComplete='current-password'
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)} />
+                    </Grid>
 
-                <Tooltip title={(connectionStatus !== 'Open') ? 'Lost Connection to Server' : ''}  arrow>
-                  <div>
-                    <Button 
-                      variant='contained' 
-                      type='submit' 
-                      disabled={connectionStatus !== 'Open'}>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        id='password'
+                        label='Password'
+                        type='password'
+                        autoComplete='current-password'
+                        value={password}
+                        sx={{ marginBottom: '2rem' }}
+                        onChange={(e) => setPassword(e.target.value)} />
 
-                      Signin
-                    </Button>
-                  </div>
-                </Tooltip>
-              </Box>
-            </TabPanel>
-          </TabContext>
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Tooltip title={(connectionStatus !== 'Open') ? 'Lost Connection to Server' : ''}  arrow>
+                        <div>
+                          <Button 
+                            fullWidth
+                            variant='contained' 
+                            type='submit' 
+                            disabled={connectionStatus !== 'Open'}>
+
+                            Signin
+                          </Button>
+                        </div>
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </TabPanel>
+
+              <TabPanel value='2'>
+                <Box component='form' onSubmit={(e) => handleSignup(e)}>
+                  <Grid direction='row' justifyContent='flex-start'>
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        id='username'
+                        label='Username'
+                        autoComplete='username'
+                        value={username}
+                        sx={{ marginBottom: '1rem' }}
+                        onChange={(e) => setUsername(e.target.value)} />
+
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <TextField
+                        required
+                        fullWidth
+                        id='password'
+                        label='Password'
+                        type='password'
+                        autoComplete='current-password'
+                        value={password}
+                        sx={{ marginBottom: '2rem' }}
+                        onChange={(e) => setPassword(e.target.value)} />
+
+                    </Grid>
+
+                    <Grid item xs={12}>
+                      <Tooltip title={(connectionStatus !== 'Open') ? 'Lost Connection to Server' : ''}  arrow>
+                        <div>
+                          <Button 
+                            fullWidth
+                            variant='contained' 
+                            type='submit' 
+                            disabled={connectionStatus !== 'Open'}>
+
+                            Signup
+                          </Button>
+                        </div>
+                      </Tooltip>
+                    </Grid>
+                  </Grid>
+                </Box>
+              </TabPanel>
+            </TabContext>
+          </div>
         )}
       </div>
 
       <Box sx={{ '& > :not(style)': { m: 1, position: 'fixed', top: '90%', right: '1.5%' } }}>
         <Fab variant='extended' aria-label={connectionStatus}>
-          {(connectionStatus === 'Open') ? <CheckIcon sx={{ mr: 1 }} color={connectionColor} /> : null}
-          {(connectionStatus === 'Closed') ? <ErrorIcon sx={{ mr: 1 }} color={connectionColor} /> : null}
-          {(connectionStatus === 'Uninstantiated') ? <HourglassEmptyIcon sx={{ mr: 1 }} color={connectionColor} /> : null}
+          {(connectionStatus === 'Open') ? <Check sx={{ mr: 1 }} color={connectionColor} /> : null}
+          {(connectionStatus === 'Closed') ? <Error sx={{ mr: 1 }} color={connectionColor} /> : null}
+          {(connectionStatus === 'Uninstantiated') ? <HourglassEmpty sx={{ mr: 1 }} color={connectionColor} /> : null}
           {((connectionStatus === 'Connecting') || (connectionStatus === 'Closing')) ? (
-            <WarningIcon color={connectionColor} />
+            <Warning color={connectionColor} />
           ) : null}
 
           {connectionStatus}

@@ -56,6 +56,8 @@ mongoose.connection.on('connected', () => {
         ws.send(JSON.stringify({
           error: 'Invalid route'
         }));
+
+        return;
       }
 
       // Send the response from the handler, we should throw errors back 
