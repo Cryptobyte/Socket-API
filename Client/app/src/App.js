@@ -67,6 +67,14 @@ function App() {
       if ((_data) && (_data.token)) {
         setToken(_data.token);
         setPassword('');
+
+        localStorage.setItem('username', username);
+
+        /*
+         * Refresh the page to trigger browsers to offer 
+         * to remember password, for convienence
+         */
+        window.location.reload();
       }
     },
     shouldReconnect: (e) => true
@@ -114,16 +122,6 @@ function App() {
 
   }, [token]);
 
-  React.useEffect(() => {
-    if ((!username) || (username === '')) {
-      localStorage.removeItem('username');
-      return;
-    }
-
-    localStorage.setItem('username', username);
-
-  }, [username]);
-
   const handleSignup = (e) => {
     e.preventDefault();
 
@@ -145,6 +143,8 @@ function App() {
   };
 
   const handleLogout = () => {
+    localStorage.removeItem('username');
+
     setToken(null);
     setUsername('');
   };
@@ -176,7 +176,7 @@ function App() {
                   sx={{ marginTop: '1rem' }}
                   onClick={() => handleLogout()}>
 
-                  Logout
+                  Sign out
                 </Button>
               </Grid>
             </Grid>
@@ -189,8 +189,8 @@ function App() {
             <TabContext value={tab}>
               <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
                 <TabList centered onChange={(event, newValue) => setTab(newValue)}>
-                  <Tab label='Signin' value='1' />
-                  <Tab label='Signup' value='2' />
+                  <Tab label='Sign in' value='1' />
+                  <Tab label='Sign up' value='2' />
                 </TabList>
               </Box>
 
@@ -233,7 +233,7 @@ function App() {
                             type='submit' 
                             disabled={connectionStatus !== 'Open'}>
 
-                            Signin
+                            Sign in
                           </Button>
                         </div>
                       </Tooltip>
@@ -281,7 +281,7 @@ function App() {
                             type='submit' 
                             disabled={connectionStatus !== 'Open'}>
 
-                            Signup
+                            Sign up
                           </Button>
                         </div>
                       </Tooltip>
