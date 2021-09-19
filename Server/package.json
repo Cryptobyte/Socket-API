@@ -1,15 +1,23 @@
 {
   "name": "socket-api-server",
   "version": "0.0.1",
+  "private": true,
   "description": "Socket API Server",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js"
   },
   "keywords": [
     "socket",
     "api"
   ],
   "author": "Cryptobyte",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "argon2": "^0.28.2",
+    "dotenv": "^10.0.0",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.0.6",
+    "ws": "^8.2.2"
+  }
 }

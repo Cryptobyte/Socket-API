@@ -1,0 +1,19 @@
+{
+  "name": "socket-api-client",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Socket API Client",
+  "main": "index.js",
+  "scripts": {
+    "start": "yarn --cwd ./app/ build && node index.js"
+  },
+  "keywords": [
+    "socket",
+    "api"
+  ],
+  "author": "Cryptobyte",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
